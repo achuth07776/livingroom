@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive House Designer</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            position: fixed;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #f4f4f4;
+            padding: 20px;
+            box-shadow: -3px 0 5px rgba(0,0,0,0.2);
+        }
+        .color-option {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn-complete {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #00a680;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        canvas {
+            display: block;
+            width: calc(100% - 300px);
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Paint the walls</h2>
+        <div id="color-options">
+            <div class="color-option" style="background-color: #A9C9C8;" data-color="#A9C9C8"></div>
+            <div class="color-option" style="background-color: #869694;" data-color="#869694"></div>
+            <div class="color-option" style="background-color: #F5F0E1;" data-color="#F5F0E1"></div>
+            <div class="color-option" style="background-color: #F3A4B5;" data-color="#F3A4B5"></div>
+            <div class="color-option" style="background-color: #FFC1A3;" data-color="#FFC1A3"></div>
+        </div>
+        <a class="btn-complete" href="#">Complete</a>
+    </div>
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Include Three.js and GLTFLoader only once -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
