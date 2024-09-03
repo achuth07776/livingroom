@@ -60,9 +60,101 @@
     </div>
     <canvas id="three-canvas"></canvas>
 
-    <!-- Include Three.js and GLTFLoader only once -->
+    <!-- Include Three.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Include OrbitControls -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- Include GLTFLoader -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script src="script.js"></script>
+
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, canvas: document.getElementById('three-canvas') });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.outputEncoding = THREE.sRGBEncoding; // Ensure correct color encoding
+
+        // Set the camera position outside the house initially
+        camera.position.set(5, 3, 5);
+        camera.lookAt(0, 1.5, 0);
+
+        // Initialize OrbitControls to allow interior exploration
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // Smooth the controls
+        controls.dampingFactor = 0.1;
+        controls.screenSpacePanning = true; // Allow panning
+        controls.minDistance = 0.5; // Allow close-up view
+        controls.maxDistance = 50; // Limit zoom out distance
+        controls.maxPolarAngle = Math.PI / 2; // Limit vertical rotation to prevent flipping
+
+        // Add ambient light for soft global illumination
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        // Add directional light to simulate sunlight
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(-1, 2, 3).normalize(); // Position the light like sunlight
+        scene.add(directionalLight);
+
+        // Load the GLB model with textures and materials
+        const loader = new THREE.GLTFLoader();
+        loader.load('model/house1.glb', function (gltf) {
+            const house = gltf.scene;
+            scene.add(house);
+
+            // Adjust model position and scale
+            house.position.set(0, 0, 0);
+            house.scale.set(1, 1, 1);
+
+            // Ensure materials are correctly applied
+            house.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.needsUpdate = true; // Update material
+                }
+            });
+
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update(); // Required if controls.enableDamping = true
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            let selectedWall = null;
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            function onMouseClick(event) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(house.children, true);
+
+                if (intersects.length > 0) {
+                    selectedWall = intersects[0].object;
+                    console.log('Selected wall:', selectedWall.name);
+                }
+            }
+
+            window.addEventListener('click', onMouseClick);
+
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    if (selectedWall) {
+                        const color = this.getAttribute('data-color');
+                        selectedWall.material.color.set(color);
+                    }
+                });
+            });
+
+        }, undefined, function (error) {
+            console.error('An error happened while loading the model:', error);
+        });
+    </script>
 </body>
 </html>
